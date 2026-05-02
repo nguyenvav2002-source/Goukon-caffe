@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Gōkon",
+    "slug": "gokon-app",
+    "version": "1.0.0",
+    "scheme": "gokon",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B9D"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "vn.gokon.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Gōkon needs camera access to take your match commemoration photo.",
+        "NSPhotoLibraryUsageDescription": "Gōkon needs photo library access to save your match photo."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FF6B9D"
+      },
+      "package": "vn.gokon.app",
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Gōkon to access your camera for match photos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "http://localhost:3000"
+    }
+  }
+}

@@ -1,0 +1,288 @@
+// Prisma schema for Gōkon – Mobile Dating Event App
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  USER
+  STAFF
+  MC
+  ADMIN
+}
+
+enum EventType {
+  ONE_VS_ONE   // 1v1 – Floor 1
+  THREE_VS_THREE // 3v3 – Floor 2
+  FIVE_VS_FIVE  // 5v5 – Floor 3 outdoor
+}
+
+enum EventStatus {
+  DRAFT
+  OPEN       // accepting registrations
+  FULL       // all slots filled
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  SERVED
+  CANCELLED
+}
+
+enum MatchChoice {
+  HEART   // ❤️
+  REJECT  // ❌
+}
+
+enum MatchStatus {
+  PENDING   // waiting for both choices
+  MATCHED   // both chose ❤️
+  NOT_MATCHED // at least one ❌
+}
+
+enum TeamSide {
+  TEAM_A
+  TEAM_B
+}
+
+// ─────────────────────────────────────────────
+// USERS
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  phone        String?  @unique
+  passwordHash String
+  role         Role     @default(USER)
+  displayName  String
+  avatarUrl    String?
+  gender       String?  // "male" | "female" | "other"
+  birthYear    Int?
+  bio          String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  refreshTokens   RefreshToken[]
+  registrations   EventRegistration[]
+  orders          Order[]
+  matchChoices    MatchChoice_[]
+  matchPhotos     MatchPhoto[]  @relation("MatchPhotoUsers")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// ROOMS
+// ─────────────────────────────────────────────
+
+model Room {
+  id        String    @id @default(uuid())
+  name      String    // e.g. "Phòng 101", "Phòng 201"
+  floor     Int       // 1, 2, 3
+  capacity  Int       // 2 for 1v1, 6 for 3v3, 10 for 5v5
+  eventType EventType
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  eventSessions EventSession[]
+
+  @@map("rooms")
+}
+
+// ─────────────────────────────────────────────
+// EVENTS
+// ─────────────────────────────────────────────
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  eventType   EventType
+  status      EventStatus @default(DRAFT)
+  maxSlots    Int         // total user slots (2, 6, or 10)
+  price       Decimal     @db.Decimal(10, 2) // registration fee
+  scheduledAt DateTime
+  durationMin Int         @default(120) // minutes
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  registrations EventRegistration[]
+  sessions      EventSession[]
+
+  @@map("events")
+}
+
+model EventRegistration {
+  id        String             @id @default(uuid())
+  eventId   String
+  event     Event              @relation(fields: [eventId], references: [id])
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+  status    RegistrationStatus @default(PENDING)
+  teamSide  TeamSide?          // assigned after matching
+  seatNo    Int?               // seat number within team
+  freedrink Boolean            @default(true)  // first drink free
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([eventId, userId])
+  @@map("event_registrations")
+}
+
+// ─────────────────────────────────────────────
+// EVENT SESSIONS (room assignment per event)
+// ─────────────────────────────────────────────
+
+model EventSession {
+  id        String      @id @default(uuid())
+  eventId   String
+  event     Event       @relation(fields: [eventId], references: [id])
+  roomId    String
+  room      Room        @relation(fields: [roomId], references: [id])
+  mcId      String?     // MC assigned to this session
+  startedAt DateTime?
+  endedAt   DateTime?
+  createdAt DateTime    @default(now())
+
+  orders  Order[]
+  matches Match[]
+
+  @@map("event_sessions")
+}
+
+// ─────────────────────────────────────────────
+// MENU & ORDERS
+// ─────────────────────────────────────────────
+
+model MenuItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  basePrice   Decimal  @db.Decimal(10, 2)
+  imageUrl    String?
+  isAvailable Boolean  @default(true)
+  category    String   @default("drink")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@map("menu_items")
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id])
+  sessionId      String
+  session        EventSession @relation(fields: [sessionId], references: [id])
+  status         OrderStatus @default(PENDING)
+  totalAmount    Decimal     @db.Decimal(10, 2) @default(0)
+  discountAmount Decimal     @db.Decimal(10, 2) @default(0)
+  finalAmount    Decimal     @db.Decimal(10, 2) @default(0)
+  note           String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId  String
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity    Int      @default(1)
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  isFree      Boolean  @default(false) // first drink free
+  discount    Decimal  @db.Decimal(5, 2) @default(0) // 0 to 1 (percentage)
+  finalPrice  Decimal  @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+// ─────────────────────────────────────────────
+// MATCHING
+// ─────────────────────────────────────────────
+
+model Match {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   EventSession @relation(fields: [sessionId], references: [id])
+  status    MatchStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  choices MatchChoice_[]
+  photo   MatchPhoto?
+
+  @@map("matches")
+}
+
+model MatchChoice_ {
+  id        String      @id @default(uuid())
+  matchId   String
+  match     Match       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  choice    MatchChoice
+  createdAt DateTime    @default(now())
+
+  @@unique([matchId, userId])
+  @@map("match_choices")
+}
+
+// ─────────────────────────────────────────────
+// MATCH PHOTOS (post-match commemoration)
+// ─────────────────────────────────────────────
+
+model MatchPhoto {
+  id        String   @id @default(uuid())
+  matchId   String   @unique
+  match     Match    @relation(fields: [matchId], references: [id])
+  filePath  String   // server file path
+  fileUrl   String?  // public URL if served
+  users     User[]   @relation("MatchPhotoUsers")
+  createdAt DateTime @default(now())
+
+  @@map("match_photos")
+}
