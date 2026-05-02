@@ -901,6 +901,103 @@
       font-size: 12px;
     }
 
+    /* ══════════════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════════════ */
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33%       { transform: translateY(-12px) rotate(-4deg); }
+      66%       { transform: translateY(-6px) rotate(3deg); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1);    box-shadow: 0 6px 24px rgba(255,107,157,.3); }
+      50%       { transform: scale(1.08); box-shadow: 0 12px 48px rgba(255,107,157,.6); }
+    }
+    @keyframes matchPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50%       { transform: scale(1.22) rotate(5deg); }
+    }
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50%       { background-position: 100% 50%; }
+    }
+    @keyframes wiggleHint {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      15%       { transform: rotate(-6deg) scale(1.1); }
+      30%       { transform: rotate(6deg) scale(1.1); }
+      45%       { transform: rotate(-3deg) scale(1.05); }
+      60%       { transform: rotate(3deg) scale(1.05); }
+    }
+    /* ── scroll-in classes ── */
+    .anim-fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .anim-fade-up.visible  { opacity: 1; transform: translateY(0); }
+    .anim-slide-left {
+      opacity: 0;
+      transform: translateX(-52px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .anim-slide-left.visible  { opacity: 1; transform: translateX(0); }
+    .anim-slide-right {
+      opacity: 0;
+      transform: translateX(52px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .anim-slide-right.visible { opacity: 1; transform: translateX(0); }
+    .anim-bounce-in {
+      opacity: 0;
+      transform: scale(.15);
+      transition: opacity .65s cubic-bezier(.34,1.56,.64,1), transform .65s cubic-bezier(.34,1.56,.64,1);
+    }
+    .anim-bounce-in.visible { opacity: 1; transform: scale(1); }
+    .anim-scale-in {
+      opacity: 0;
+      transform: scale(.3) rotate(-15deg);
+      transition: opacity .5s ease, transform .55s cubic-bezier(.34,1.56,.64,1);
+    }
+    .anim-scale-in.visible  { opacity: 1; transform: scale(1) rotate(0deg); }
+    /* stagger delays */
+    .d1 { transition-delay: .10s !important; }
+    .d2 { transition-delay: .22s !important; }
+    .d3 { transition-delay: .34s !important; }
+    .d4 { transition-delay: .46s !important; }
+    .d5 { transition-delay: .58s !important; }
+    /* ── persistent CSS animations ── */
+    .logo-emoji        { display:inline-block; animation: floatBob 3.6s ease-in-out infinite; }
+    .partner-avatar    { animation: pulseGlow 2.6s ease-in-out infinite; }
+    .match-success-hearts { display:inline-block; animation: matchPulse 1.5s ease-in-out infinite; }
+    .hero-banner {
+      background: linear-gradient(135deg, var(--primary) 0%, #c94080 40%, #ff8fb0 70%, var(--primary) 100%);
+      background-size: 300% 300%;
+      animation: gradientFlow 6s ease infinite;
+    }
+    /* ── btn-primary ripple ── */
+    .btn-primary { position: relative; overflow: hidden; }
+    .btn-primary::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,.45) 0%, transparent 72%);
+      opacity: 0; transform: scale(0);
+      transition: transform .4s ease, opacity .4s ease;
+      pointer-events: none;
+    }
+    .btn-primary:active::after { transform: scale(2.5); opacity: 1; transition: none; }
+    /* ── heart particle ── */
+    .heart-particle {
+      position: fixed;
+      font-size: 22px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: floatParticle 1.1s ease-out forwards;
+    }
+    @keyframes floatParticle {
+      0%   { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-110px) scale(.2) rotate(25deg); opacity: 0; }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 440px) {
       .phone { width: 100%; border-radius: 0; box-shadow: none; }
@@ -950,7 +1047,7 @@
             <div class="logo-sub">Hẹn hò – Kết nối – Trải nghiệm</div>
           </div>
 
-          <div class="auth-card">
+          <div class="auth-card anim-fade-up">
             <div class="mode-toggle">
               <div class="mode-btn active" onclick="toggleMode(this,'login')">Đăng nhập</div>
               <div class="mode-btn" onclick="toggleMode(this,'register')">Đăng ký</div>
@@ -1228,11 +1325,11 @@
           <div class="bg-blob-1"></div>
           <div class="bg-blob-2"></div>
           <div class="success-content">
-            <div class="success-icon">✅</div>
-            <div class="success-title">Đăng ký thành công! 🎉</div>
-            <div class="success-event-name">Gōkon Cafe Romantique – 09/05</div>
+            <div class="success-icon anim-scale-in">✅</div>
+            <div class="success-title anim-bounce-in d1">Đăng ký thành công! 🎉</div>
+            <div class="success-event-name anim-fade-up d2">Gōkon Cafe Romantique – 09/05</div>
 
-            <div class="promo-card-white">
+            <div class="promo-card-white anim-fade-up d3">
               <div class="promo-card-title">🎁 Ưu đãi của bạn đã sẵn sàng!</div>
               <div class="promo-row">
                 <div class="promo-row-emoji">🥤</div>
@@ -1251,7 +1348,7 @@
               </div>
             </div>
 
-            <div class="steps-card">
+            <div class="steps-card anim-fade-up d4">
               <div class="steps-title">BƯỚC TIẾP THEO</div>
               <div class="step-row">
                 <div class="step-badge">1</div>
@@ -1306,7 +1403,7 @@
               <span class="btn-emoji">❌</span>
               Từ chối
             </button>
-            <button class="choice-btn heart" onclick="simulateMatch()">
+            <button class="choice-btn heart" onclick="simulateMatch(event)">
               <span class="btn-emoji">❤️</span>
               Thích!
             </button>
@@ -1335,23 +1432,23 @@
 
       <div class="screen-content">
         <div class="match-success-screen">
-          <div class="match-success-hearts">💚✨💚</div>
-          <div class="match-success-title">It's a Match!</div>
-          <div class="match-success-sub">Cả hai đều thích nhau 🥰</div>
+          <div class="match-success-hearts anim-bounce-in">💚✨💚</div>
+          <div class="match-success-title anim-bounce-in d1">It's a Match!</div>
+          <div class="match-success-sub anim-fade-up d2">Cả hai đều thích nhau 🥰</div>
 
           <div class="couple-row">
-            <div style="text-align:center">
+            <div style="text-align:center" class="anim-slide-left d3">
               <div class="couple-avatar" style="background:linear-gradient(135deg,#FFB3CF,#FF6B9D)">🧑</div>
               <div class="couple-name">Minh</div>
             </div>
-            <div class="heart-large">💕</div>
-            <div style="text-align:center">
+            <div class="heart-large anim-bounce-in d4">💕</div>
+            <div style="text-align:center" class="anim-slide-right d3">
               <div class="couple-avatar" style="background:linear-gradient(135deg,#b3d4ff,#4A90E2)">🧕</div>
               <div class="couple-name">Lan</div>
             </div>
           </div>
 
-          <div class="camera-section">
+          <div class="camera-section anim-fade-up d5">
             <h3>📸 Chụp ảnh kỷ niệm</h3>
             <p>Lưu lại khoảnh khắc đặc biệt này cùng nhau!</p>
             <button class="btn-camera">📷 &nbsp;Mở camera chụp ảnh</button>
@@ -1500,16 +1597,16 @@
 
           <!-- Stats -->
           <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-value">12</div>
+            <div class="stat-card anim-fade-up d1">
+              <div class="stat-value" data-target="12">0</div>
               <div class="stat-label">Tổng match</div>
             </div>
-            <div class="stat-card green">
-              <div class="stat-value">5</div>
+            <div class="stat-card green anim-fade-up d2">
+              <div class="stat-value" data-target="5">0</div>
               <div class="stat-label">💚 Match!</div>
             </div>
-            <div class="stat-card orange">
-              <div class="stat-value">4</div>
+            <div class="stat-card orange anim-fade-up d3">
+              <div class="stat-value" data-target="4">0</div>
               <div class="stat-label">⏳ Chờ</div>
             </div>
           </div>
@@ -1635,11 +1732,37 @@
     qtyEl.textContent = qty;
   }
 
+  /* ── Heart particle burst ── */
+  function spawnHearts(x, y) {
+    const EMOJIS = ['❤️','💕','💖','💗','💓','✨'];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div');
+      el.className = 'heart-particle';
+      el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+      el.style.left = (x + (Math.random() - .5) * 80) + 'px';
+      el.style.top  = (y + (Math.random() - .5) * 40) + 'px';
+      el.style.animationDelay = (Math.random() * .3) + 's';
+      el.style.fontSize = (16 + Math.random() * 14) + 'px';
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
   /* ── Simulate heart click (Match screen) ── */
-  function simulateMatch() {
+  function simulateMatch(event) {
     const box = document.querySelector('.match-status-box');
     box.className = 'match-status-box matched';
     box.innerHTML = '<div class="match-status-text">💚 Đã gửi ❤️! Đang chờ đối phương...</div>';
+    if (event) spawnHearts(event.clientX, event.clientY);
+    /* wiggle the partner avatar */
+    const av = document.querySelector('.partner-avatar');
+    av.style.animation = 'none';
+    requestAnimationFrame(() => {
+      av.style.animation = 'wiggleHint .7s ease';
+      av.addEventListener('animationend', () => {
+        av.style.animation = 'pulseGlow 2.6s ease-in-out infinite';
+      }, { once: true });
+    });
   }
 
   /* ── Smooth-scroll nav pills ── */
@@ -1648,6 +1771,70 @@
       document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
     });
+  });
+
+  /* ── Auto-add animation classes to repeated cards ── */
+  document.querySelectorAll('.event-card').forEach((el, i) => {
+    el.classList.add('anim-fade-up', ['d1','d2','d3'][i] || 'd3');
+  });
+  document.querySelectorAll('.match-result-card').forEach((el, i) => {
+    el.classList.add('anim-fade-up', ['d1','d2','d3','d4'][i] || 'd4');
+  });
+
+  /* ── Number counter animation ── */
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target, 10);
+    if (isNaN(target)) return;
+    const duration = 900;
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / duration, 1);
+      el.textContent = Math.round(p * p * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ── IntersectionObserver: trigger .visible on scroll ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const section = entry.target;
+      /* reveal all anim-* elements inside */
+      section.querySelectorAll('[class*="anim-"]').forEach(el => {
+        el.classList.add('visible');
+      });
+      /* trigger counters */
+      section.querySelectorAll('[data-target]').forEach(el => animateCounter(el));
+      observer.unobserve(section);
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.screen-section').forEach(s => observer.observe(s));
+
+  /* ── Also trigger sections already in viewport on load ── */
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.screen-section').forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) {
+        s.querySelectorAll('[class*="anim-"]').forEach(el => el.classList.add('visible'));
+        s.querySelectorAll('[data-target]').forEach(el => animateCounter(el));
+      }
+    });
+  });
+
+  /* ── Heart button wiggle hint after 2s ── */
+  setTimeout(() => {
+    const heartBtn = document.querySelector('.choice-btn.heart');
+    if (heartBtn) {
+      heartBtn.style.animation = 'wiggleHint .8s ease';
+      heartBtn.addEventListener('animationend', () => heartBtn.style.animation = '', { once: true });
+    }
+  }, 2000);
+
+  /* ── Spawn hearts on heart button click ── */
+  document.querySelectorAll('.choice-btn.heart').forEach(btn => {
+    btn.addEventListener('click', e => spawnHearts(e.clientX, e.clientY));
   });
 </script>
 </body>

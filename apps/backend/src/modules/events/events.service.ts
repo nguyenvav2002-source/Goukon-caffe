@@ -19,9 +19,12 @@ const EVENT_SLOTS: Record<EventType, number> = {
 export class EventsService {
   constructor(private prisma: PrismaService) {}
 
-  async listEvents(status?: EventStatus) {
+  async listEvents(status?: EventStatus, eventType?: EventType) {
     return this.prisma.event.findMany({
-      where: status ? { status } : undefined,
+      where: {
+        ...(status ? { status } : {}),
+        ...(eventType ? { eventType } : {}),
+      },
       orderBy: { scheduledAt: 'asc' },
       include: {
         _count: { select: { registrations: true } },

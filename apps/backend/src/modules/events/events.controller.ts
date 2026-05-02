@@ -24,8 +24,12 @@ export class EventsController {
   @Get()
   @ApiOperation({ summary: 'List all events (public)' })
   @ApiQuery({ name: 'status', enum: EventStatus, required: false })
-  async listEvents(@Query('status') status?: EventStatus) {
-    return this.eventsService.listEvents(status);
+  @ApiQuery({ name: 'type', required: false, description: 'Filter by event type' })
+  async listEvents(
+    @Query('status') status?: EventStatus,
+    @Query('type') type?: string,
+  ) {
+    return this.eventsService.listEvents(status, type as any);
   }
 
   @Get(':id')
