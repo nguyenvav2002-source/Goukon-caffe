@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, RADIUS, SHADOWS } from '@/constants/theme';
 import api from '@/services/api';
@@ -30,13 +30,17 @@ const DISCOUNT_RATE = 0.5;
 
 export default function OrderScreen() {
   const router = useRouter();
+  const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
-  const [sessionId] = useState(''); // In real app, comes from route params
+  const sessionId = sessionIdParam ?? '';
 
   useEffect(() => {
+    if (!sessionId) {
+      Alert.alert('Lỗi', 'Không tìm thấy phiên event. Vui lòng check-in trước.');
+    }
     api.get('/api/orders/menu')
       .then((res) => setMenuItems(res.data))
       .catch(() => Alert.alert('Lỗi', 'Không thể tải menu'))

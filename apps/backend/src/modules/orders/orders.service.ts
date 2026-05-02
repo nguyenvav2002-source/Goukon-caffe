@@ -94,6 +94,7 @@ export class OrdersService {
           quantity: 1,
           unitPrice: basePrice,
           isFree,
+          // discount field stores the discount rate: 1.0 = 100% off (free), 0.5 = 50% off
           discount: isFree ? new Decimal(1) : new Decimal(HALF_OFF_DISCOUNT),
           finalPrice,
         });

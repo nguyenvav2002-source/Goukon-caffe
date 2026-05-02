@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, RADIUS, SHADOWS } from '@/constants/theme';
 import api from '@/services/api';
@@ -35,10 +36,11 @@ const STATUS_CONFIG = {
 
 export default function MCDashboard() {
   const { user, logout } = useAuthStore();
+  const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>();
+  const sessionId = sessionIdParam ?? '';
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [sessionId] = useState(''); // In real app, comes from route params
 
   const fetchMatches = async () => {
     if (!sessionId) {

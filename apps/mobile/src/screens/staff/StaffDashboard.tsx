@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, RADIUS, SHADOWS } from '@/constants/theme';
 import api from '@/services/api';
@@ -40,10 +41,11 @@ const STATUS_CONFIG = {
 
 export default function StaffOrderDashboard() {
   const { user, logout } = useAuthStore();
+  const { sessionId: sessionIdParam } = useLocalSearchParams<{ sessionId?: string }>();
+  const sessionId = sessionIdParam ?? '';
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [sessionId] = useState(''); // In real app, Staff selects their assigned session
 
   const fetchOrders = async () => {
     if (!sessionId) {

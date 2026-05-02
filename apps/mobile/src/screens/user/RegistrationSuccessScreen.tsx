@@ -10,9 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, RADIUS, SHADOWS } from '@/constants/theme';
 
 export default function RegistrationSuccessScreen() {
-  const { eventTitle, registrationId } = useLocalSearchParams<{
+  const { eventTitle } = useLocalSearchParams<{
     eventTitle: string;
-    registrationId: string;
   }>();
   const router = useRouter();
 
