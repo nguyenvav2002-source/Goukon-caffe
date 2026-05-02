@@ -26,7 +26,11 @@
         "backgroundColor": "#FF6B9D"
       },
       "package": "vn.gokon.app",
-      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -40,7 +44,8 @@
         {
           "cameraPermission": "Allow Gōkon to access your camera for match photos."
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

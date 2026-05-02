@@ -44,8 +44,8 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch {
-        await SecureStore.deleteItemAsync('accessToken');
-        await SecureStore.deleteItemAsync('refreshToken');
+        try { await SecureStore.deleteItemAsync('accessToken'); } catch {}
+        try { await SecureStore.deleteItemAsync('refreshToken'); } catch {}
         // The auth store will detect missing tokens and redirect to login
       }
     }

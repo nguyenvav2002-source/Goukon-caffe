@@ -43,8 +43,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await api.get('/api/users/me');
       set({ user: res.data, isLoading: false });
     } catch {
-      await SecureStore.deleteItemAsync('accessToken');
-      await SecureStore.deleteItemAsync('refreshToken');
+      try { await SecureStore.deleteItemAsync('accessToken'); } catch {}
+      try { await SecureStore.deleteItemAsync('refreshToken'); } catch {}
       set({ user: null, isLoading: false });
     }
   },
