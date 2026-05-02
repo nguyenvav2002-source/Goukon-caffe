@@ -45,7 +45,7 @@ export default function OrderScreen() {
       .then((res) => setMenuItems(res.data))
       .catch(() => Alert.alert('Lỗi', 'Không thể tải menu'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [sessionId]);
 
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {

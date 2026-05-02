@@ -58,8 +58,12 @@ export class MatchesService {
       include: { choices: true },
     });
 
-    if (updatedMatch!.choices.length === 2) {
-      const bothHeart = updatedMatch!.choices.every((c) => c.choice === 'HEART');
+    if (!updatedMatch) {
+      throw new NotFoundException('Match not found after choice submission');
+    }
+
+    if (updatedMatch.choices.length === 2) {
+      const bothHeart = updatedMatch.choices.every((c) => c.choice === 'HEART');
       const newStatus = bothHeart ? 'MATCHED' : 'NOT_MATCHED';
 
       const finalMatch = await this.prisma.match.update({
