@@ -179,7 +179,76 @@ async function main() {
     },
   });
 
+  const demoSession = await prisma.eventSession.upsert({
+    where: { id: 'session-1v1-demo' },
+    update: {},
+    create: {
+      id: 'session-1v1-demo',
+      eventId: 'event-1v1-demo',
+      roomId: 'room-1v1-1',
+    },
+  });
+
+  const demoUser = await prisma.user.findUniqueOrThrow({
+    where: { email: 'user1@gokon.vn' },
+  });
+
+  await prisma.eventRegistration.upsert({
+    where: {
+      eventId_userId: {
+        eventId: 'event-1v1-demo',
+        userId: demoUser.id,
+      },
+    },
+    update: { status: 'CHECKED_IN' },
+    create: {
+      eventId: 'event-1v1-demo',
+      userId: demoUser.id,
+      status: 'CHECKED_IN',
+    },
+  });
+
+  const demoDrink = await prisma.menuItem.findFirstOrThrow({
+    where: { isAvailable: true },
+  });
+  await prisma.payment.deleteMany({ where: { orderId: 'order-demo-pending' } });
+  await prisma.orderItem.deleteMany({ where: { orderId: 'order-demo-pending' } });
+  await prisma.order.deleteMany({ where: { id: 'order-demo-pending' } });
+  await prisma.order.create({
+    data: {
+      id: 'order-demo-pending',
+      userId: demoUser.id,
+      sessionId: demoSession.id,
+      status: 'PENDING',
+      totalAmount: demoDrink.basePrice.mul(2),
+      discountAmount: demoDrink.basePrice.add(demoDrink.basePrice.mul(0.5)),
+      finalAmount: demoDrink.basePrice.mul(0.5),
+      note: 'Demo order for staff payment test',
+      items: {
+        create: [
+          {
+            menuItemId: demoDrink.id,
+            quantity: 1,
+            unitPrice: demoDrink.basePrice,
+            isFree: true,
+            discount: '1',
+            finalPrice: '0',
+          },
+          {
+            menuItemId: demoDrink.id,
+            quantity: 1,
+            unitPrice: demoDrink.basePrice,
+            isFree: false,
+            discount: '0.5',
+            finalPrice: demoDrink.basePrice.mul(0.5),
+          },
+        ],
+      },
+    },
+  });
+
   console.log('✅ Created sample events');
+  console.log('✅ Created demo session, check-in, and pending order');
   console.log('\n🎉 Seed complete!\n');
   console.log('Demo accounts (password: demo1234):');
   console.log('  MC:    mc@gokon.vn');

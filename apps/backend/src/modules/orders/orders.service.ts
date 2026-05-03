@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import { CreateOrderDto, PayOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 
 const HALF_OFF_DISCOUNT = 0.5;
@@ -135,6 +135,43 @@ export class OrdersService {
     });
   }
 
+  async getAllStaffOrders() {
+    return this.prisma.order.findMany({
+      select: {
+        id: true,
+        status: true,
+        note: true,
+        totalAmount: true,
+        discountAmount: true,
+        finalAmount: true,
+        createdAt: true,
+        user: {
+          select: { id: true, displayName: true, email: true },
+        },
+        session: {
+          select: {
+            id: true,
+            event: { select: { id: true, title: true, eventType: true } },
+            room: { select: { id: true, name: true, floor: true } },
+          },
+        },
+        items: {
+          select: {
+            id: true,
+            quantity: true,
+            finalPrice: true,
+            isFree: true,
+            menuItem: {
+              select: { id: true, name: true, imageUrl: true, category: true },
+            },
+          },
+        },
+        payment: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   // Staff: get orders for a specific room (session), WITHOUT personal user info
   async getOrdersBySession(sessionId: string) {
     return this.prisma.order.findMany({
@@ -170,6 +207,64 @@ export class OrdersService {
       where: { id: orderId },
       data: { status: dto.status },
     });
+  }
+
+  async payOrder(orderId: string, dto: PayOrderDto, staffId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { payment: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.payment) throw new BadRequestException('Order already paid');
+
+    const amount = dto.amount != null ? new Decimal(dto.amount) : order.finalAmount;
+    const cashReceived =
+      dto.cashReceived != null ? new Decimal(dto.cashReceived) : amount;
+    const changeAmount = Decimal.max(cashReceived.sub(amount), new Decimal(0));
+    const receiptNo = `GK-${Date.now().toString(36).toUpperCase()}-${order.id.slice(0, 6).toUpperCase()}`;
+
+    await this.prisma.$transaction([
+      this.prisma.payment.create({
+        data: {
+          orderId,
+          staffId,
+          method: dto.method ?? 'CASH',
+          amount,
+          cashReceived,
+          changeAmount,
+          receiptNo,
+        },
+      }),
+      this.prisma.order.update({
+        where: { id: orderId },
+        data: { status: 'SERVED' },
+      }),
+    ]);
+
+    return this.getReceipt(orderId);
+  }
+
+  async getReceipt(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: { select: { displayName: true, email: true, phone: true } },
+        session: {
+          include: {
+            event: { select: { title: true, eventType: true, scheduledAt: true } },
+            room: { select: { name: true, floor: true } },
+          },
+        },
+        items: {
+          include: {
+            menuItem: { select: { name: true, category: true } },
+          },
+        },
+        payment: true,
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
   }
 
   async getUserOrders(userId: string) {

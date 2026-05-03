@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '../services/storage';
 import api from '../services/api';
 
 export interface AuthUser {
@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   loadSession: async () => {
     try {
-      const token = await SecureStore.getItemAsync('accessToken');
+      const token = await storage.getItemAsync('accessToken');
       if (!token) {
         set({ user: null, isLoading: false });
         return;
@@ -43,8 +43,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const res = await api.get('/api/users/me');
       set({ user: res.data, isLoading: false });
     } catch {
-      try { await SecureStore.deleteItemAsync('accessToken'); } catch {}
-      try { await SecureStore.deleteItemAsync('refreshToken'); } catch {}
+      try { await storage.deleteItemAsync('accessToken'); } catch {}
+      try { await storage.deleteItemAsync('refreshToken'); } catch {}
       set({ user: null, isLoading: false });
     }
   },
@@ -53,8 +53,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const res = await api.post('/api/auth/login', { email, password });
     const { user, accessToken, refreshToken } = res.data;
 
-    await SecureStore.setItemAsync('accessToken', accessToken);
-    await SecureStore.setItemAsync('refreshToken', refreshToken);
+    await storage.setItemAsync('accessToken', accessToken);
+    await storage.setItemAsync('refreshToken', refreshToken);
     set({ user });
   },
 
@@ -62,8 +62,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     const res = await api.post('/api/auth/register', data);
     const { user, accessToken, refreshToken } = res.data;
 
-    await SecureStore.setItemAsync('accessToken', accessToken);
-    await SecureStore.setItemAsync('refreshToken', refreshToken);
+    await storage.setItemAsync('accessToken', accessToken);
+    await storage.setItemAsync('refreshToken', refreshToken);
     set({ user });
   },
 
@@ -71,8 +71,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await api.post('/api/auth/logout');
     } finally {
-      await SecureStore.deleteItemAsync('accessToken');
-      await SecureStore.deleteItemAsync('refreshToken');
+      await storage.deleteItemAsync('accessToken');
+      await storage.deleteItemAsync('refreshToken');
       set({ user: null });
     }
   },

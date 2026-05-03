@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Role } from '@prisma/client';
 import * as path from 'path';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class PhotosService {
     matchId: string,
     userId: string,
     file: Express.Multer.File,
+    userRole?: Role,
   ) {
     // Verify the match exists and is MATCHED
     const match = await this.prisma.match.findUnique({
@@ -25,10 +27,13 @@ export class PhotosService {
       throw new ForbiddenException('Photos can only be saved for successful matches');
     }
 
-    // Verify the requesting user is part of this match
-    const isParticipant = match.choices.some((c) => c.userId === userId);
-    if (!isParticipant) {
-      throw new ForbiddenException('You are not a participant in this match');
+    // MC and ADMIN can upload photos for any match; participants can only upload for their own
+    const isMCOrAdmin = userRole === Role.MC || userRole === Role.ADMIN;
+    if (!isMCOrAdmin) {
+      const isParticipant = match.choices.some((c) => c.userId === userId);
+      if (!isParticipant) {
+        throw new ForbiddenException('You are not a participant in this match');
+      }
     }
 
     const fileUrl = `/uploads/match-photos/${path.basename(file.path)}`;

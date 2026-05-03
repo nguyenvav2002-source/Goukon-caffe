@@ -32,12 +32,6 @@ export class EventsController {
     return this.eventsService.listEvents(status, type as any);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get event details' })
-  async getEvent(@Param('id') id: string) {
-    return this.eventsService.getEvent(id);
-  }
-
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.MC, Role.ADMIN)
@@ -75,5 +69,11 @@ export class EventsController {
   @ApiOperation({ summary: 'Get my event registrations' })
   async myRegistrations(@CurrentUser('id') userId: string) {
     return this.eventsService.getUserRegistrations(userId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get event details' })
+  async getEvent(@Param('id') id: string) {
+    return this.eventsService.getEvent(id);
   }
 }

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gōkon – Mobile UI Prototype</title>
   <style>
     /* ── Design tokens (mirrors theme.ts) ── */
@@ -308,6 +308,36 @@
       text-align: center;
       color: #fff;
       box-shadow: var(--shadow-lg);
+    }
+    .photo-hero {
+      min-height: 178px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      isolation: isolate;
+    }
+    .hero-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    .photo-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(20,20,24,.06) 0%, rgba(20,20,24,.18) 38%, rgba(20,20,24,.76) 100%);
+      z-index: -1;
+    }
+    .hero-copy {
+      width: 100%;
+      padding: 52px 18px 18px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.34);
     }
     .hero-emoji { font-size: 36px; }
     .hero-title { font-size: 18px; font-weight: 700; margin-top: 6px; }
@@ -744,6 +774,34 @@
       border-color: var(--primary);
       color: #fff;
     }
+    .menu-photo-card {
+      margin: 12px 16px 14px;
+      position: relative;
+      height: 136px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      background: var(--surface-alt);
+    }
+    .menu-photo-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .menu-photo-caption {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      padding: 9px 11px;
+      border-radius: var(--radius-md);
+      background: rgba(28,28,30,.72);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
     .menu-list { padding: 0 16px; }
     .menu-item-card {
       background: var(--surface);
@@ -969,7 +1027,7 @@
     .logo-emoji        { display:inline-block; animation: floatBob 3.6s ease-in-out infinite; }
     .partner-avatar    { animation: pulseGlow 2.6s ease-in-out infinite; }
     .match-success-hearts { display:inline-block; animation: matchPulse 1.5s ease-in-out infinite; }
-    .hero-banner {
+    .hero-banner:not(.photo-hero) {
       background: linear-gradient(135deg, var(--primary) 0%, #c94080 40%, #ff8fb0 70%, var(--primary) 100%);
       background-size: 300% 300%;
       animation: gradientFlow 6s ease infinite;
@@ -1056,34 +1114,34 @@
             <div id="login-fields">
               <div class="input-group">
                 <div class="input-label">Email</div>
-                <input class="input-field" type="email" placeholder="your@email.com" />
+                <input class="input-field" type="email" placeholder="your@email.com" autocomplete="email">
               </div>
               <div class="input-group">
                 <div class="input-label">Mật khẩu</div>
-                <input class="input-field" type="password" placeholder="••••••••" />
+                <input class="input-field" type="password" placeholder="••••••••" autocomplete="current-password">
               </div>
             </div>
 
             <div id="register-fields" style="display:none">
               <div class="input-group">
                 <div class="input-label">Tên hiển thị</div>
-                <input class="input-field" type="text" placeholder="Nguyễn Văn A" />
+                <input class="input-field" type="text" placeholder="Nguyễn Văn A" autocomplete="name">
               </div>
               <div class="input-group">
                 <div class="input-label">Email</div>
-                <input class="input-field" type="email" placeholder="your@email.com" />
+                <input class="input-field" type="email" placeholder="your@email.com" autocomplete="email">
               </div>
               <div class="input-group">
                 <div class="input-label">Số điện thoại (tuỳ chọn)</div>
-                <input class="input-field" type="tel" placeholder="0901 234 567" />
+                <input class="input-field" type="tel" placeholder="0901 234 567" autocomplete="tel">
               </div>
               <div class="input-group">
                 <div class="input-label">Mật khẩu</div>
-                <input class="input-field" type="password" placeholder="Tối thiểu 8 ký tự" />
+                <input class="input-field" type="password" placeholder="Tối thiểu 8 ký tự" autocomplete="new-password">
               </div>
             </div>
 
-            <button class="btn-primary" id="auth-btn">Đăng nhập</button>
+            <button class="btn-primary" id="auth-btn" type="button">Đăng nhập</button>
 
             <div class="auth-divider">hoặc</div>
             <p style="text-align:center;font-size:13px;color:var(--text-muted)">
@@ -1122,10 +1180,13 @@
           </div>
 
           <!-- Hero -->
-          <div class="hero-banner">
-            <div class="hero-emoji">💕</div>
-            <div class="hero-title">Tìm kiếm nửa kia của bạn</div>
-            <div class="hero-sub">Hẹn hò nhóm thú vị trong không gian cafe ấm cúng</div>
+          <div class="hero-banner photo-hero">
+            <img class="hero-photo" src="assets/images/gokon-cafe-event.png" alt="Không gian cafe hẹn hò Gōkon">
+            <div class="hero-copy">
+              <div class="hero-emoji">💕</div>
+              <div class="hero-title">Tìm kiếm nửa kia của bạn</div>
+              <div class="hero-sub">Hẹn hò nhóm thú vị trong không gian cafe ấm cúng</div>
+            </div>
           </div>
 
           <!-- Event types -->
@@ -1300,7 +1361,7 @@
           </div>
 
           <div class="register-footer">
-            <button class="btn-primary">Đăng ký ngay · 150.000đ</button>
+            <button class="btn-primary" type="button">Đăng ký ngay · 150.000đ</button>
           </div>
         </div>
       </div>
@@ -1364,7 +1425,7 @@
               </div>
             </div>
 
-            <button class="btn-primary" style="margin-top:20px">Về trang chủ</button>
+            <button class="btn-primary" type="button" style="margin-top:20px">Về trang chủ</button>
           </div>
         </div>
       </div>
@@ -1399,11 +1460,11 @@
           </div>
 
           <div class="choice-row">
-            <button class="choice-btn reject">
+            <button class="choice-btn reject" type="button">
               <span class="btn-emoji">❌</span>
               Từ chối
             </button>
-            <button class="choice-btn heart" onclick="simulateMatch(event)">
+            <button class="choice-btn heart" type="button" onclick="simulateMatch(event)">
               <span class="btn-emoji">❤️</span>
               Thích!
             </button>
@@ -1451,10 +1512,10 @@
           <div class="camera-section anim-fade-up d5">
             <h3>📸 Chụp ảnh kỷ niệm</h3>
             <p>Lưu lại khoảnh khắc đặc biệt này cùng nhau!</p>
-            <button class="btn-camera">📷 &nbsp;Mở camera chụp ảnh</button>
+            <button class="btn-camera" type="button">📷 &nbsp;Mở camera chụp ảnh</button>
           </div>
 
-          <button class="btn-primary" style="margin-top:16px;width:100%">
+          <button class="btn-primary" type="button" style="margin-top:16px;width:100%">
             🏠 Về trang chủ
           </button>
         </div>
@@ -1488,6 +1549,11 @@
             <span style="font-size:12px;color:#fff;font-weight:600">1 ly đầu MIỄN PHÍ · Còn lại giảm 50%</span>
           </div>
 
+          <div class="menu-photo-card">
+            <img src="assets/images/gokon-drinks-menu.png" alt="Menu đồ uống Gōkon">
+            <div class="menu-photo-caption">Menu cafe hôm nay · ly đầu miễn phí</div>
+          </div>
+
           <!-- Category tabs -->
           <div class="category-tabs">
             <div class="category-tab active">☕ Cà phê</div>
@@ -1506,9 +1572,9 @@
                 <div class="menu-item-price">35.000đ <span style="font-size:11px;color:var(--matched);font-weight:700">→ FREE</span></div>
               </div>
               <div class="qty-control">
-                <button class="qty-btn minus" onclick="changeQty(this,-1)">−</button>
+                <button class="qty-btn minus" type="button" onclick="changeQty(this,-1)">−</button>
                 <span class="qty-num">1</span>
-                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                <button class="qty-btn" type="button" onclick="changeQty(this,1)">+</button>
               </div>
             </div>
 
@@ -1520,9 +1586,9 @@
                 <div class="menu-item-price">45.000đ <span style="font-size:11px;color:var(--matched);font-weight:700">→ 22.500đ</span></div>
               </div>
               <div class="qty-control">
-                <button class="qty-btn minus" onclick="changeQty(this,-1)">−</button>
+                <button class="qty-btn minus" type="button" onclick="changeQty(this,-1)">−</button>
                 <span class="qty-num">0</span>
-                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                <button class="qty-btn" type="button" onclick="changeQty(this,1)">+</button>
               </div>
             </div>
 
@@ -1534,9 +1600,9 @@
                 <div class="menu-item-price">40.000đ <span style="font-size:11px;color:var(--matched);font-weight:700">→ 20.000đ</span></div>
               </div>
               <div class="qty-control">
-                <button class="qty-btn minus" onclick="changeQty(this,-1)">−</button>
+                <button class="qty-btn minus" type="button" onclick="changeQty(this,-1)">−</button>
                 <span class="qty-num">0</span>
-                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                <button class="qty-btn" type="button" onclick="changeQty(this,1)">+</button>
               </div>
             </div>
 
@@ -1548,9 +1614,9 @@
                 <div class="menu-item-price">38.000đ <span style="font-size:11px;color:var(--matched);font-weight:700">→ 19.000đ</span></div>
               </div>
               <div class="qty-control">
-                <button class="qty-btn minus" onclick="changeQty(this,-1)">−</button>
+                <button class="qty-btn minus" type="button" onclick="changeQty(this,-1)">−</button>
                 <span class="qty-num">0</span>
-                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                <button class="qty-btn" type="button" onclick="changeQty(this,1)">+</button>
               </div>
             </div>
 
@@ -1566,7 +1632,7 @@
               </div>
               <span class="savings-badge">Tiết kiệm 35.000đ 🎉</span>
             </div>
-            <button class="btn-primary">Đặt ngay (1 món)</button>
+            <button class="btn-primary" type="button">Đặt ngay (1 món)</button>
           </div>
         </div>
       </div>
@@ -1835,6 +1901,339 @@
   /* ── Spawn hearts on heart button click ── */
   document.querySelectorAll('.choice-btn.heart').forEach(btn => {
     btn.addEventListener('click', e => spawnHearts(e.clientX, e.clientY));
+  });
+
+  /* ─────────────────────────────────────────────
+     Real backend bridge: file:// HTML -> Nest API -> PostgreSQL
+     ───────────────────────────────────────────── */
+  const API_STATE_KEY = 'gokon_proto_api_state';
+  const defaultApiState = {
+    apiUrl: 'http://localhost:3000',
+    accessToken: '',
+    refreshToken: '',
+    user: null,
+  };
+
+  function loadApiState() {
+    try {
+      return { ...defaultApiState, ...JSON.parse(localStorage.getItem(API_STATE_KEY) || '{}') };
+    } catch {
+      return { ...defaultApiState };
+    }
+  }
+
+  function saveApiState(next) {
+    localStorage.setItem(API_STATE_KEY, JSON.stringify(next));
+  }
+
+  let apiState = loadApiState();
+
+  function formatMoney(value) {
+    return Number(value || 0).toLocaleString('vi-VN') + 'đ';
+  }
+
+  function toast(message, type = 'ok') {
+    let el = document.querySelector('.proto-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'proto-toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = message;
+    el.dataset.type = type;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  async function apiFetch(path, options = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    };
+    if (apiState.accessToken) headers.Authorization = `Bearer ${apiState.accessToken}`;
+    const response = await fetch(`${apiState.apiUrl}${path}`, {
+      ...options,
+      headers,
+    });
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+    if (!response.ok) {
+      throw new Error(Array.isArray(data?.message) ? data.message.join('\n') : data?.message || response.statusText);
+    }
+    return data;
+  }
+
+  function currentAuthMode() {
+    return document.querySelector('#register-fields')?.style.display === 'none' ? 'login' : 'register';
+  }
+
+  function authFormData() {
+    const loginInputs = document.querySelectorAll('#login-fields input');
+    const registerInputs = document.querySelectorAll('#register-fields input');
+    if (currentAuthMode() === 'login') {
+      return {
+        email: loginInputs[0]?.value || 'user1@gokon.vn',
+        password: loginInputs[1]?.value || 'demo1234',
+      };
+    }
+    return {
+      displayName: registerInputs[0]?.value || 'Prototype User',
+      email: registerInputs[1]?.value || `proto${Date.now()}@gokon.vn`,
+      phone: registerInputs[2]?.value || undefined,
+      password: registerInputs[3]?.value || 'demo1234',
+    };
+  }
+
+  async function loginWith(email, password) {
+    const data = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    apiState = { ...apiState, ...data };
+    saveApiState(apiState);
+    refreshApiPanel();
+    await Promise.allSettled([loadEventsFromApi(), loadProductsFromApi()]);
+    if (data.user?.role === 'STAFF' || data.user?.role === 'ADMIN') {
+      await loadStaffOrders();
+    }
+    toast(`Đăng nhập thành công: ${data.user.displayName} (${data.user.role})`);
+  }
+
+  async function registerFromPrototype() {
+    const dto = authFormData();
+    const data = await apiFetch('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+    apiState = { ...apiState, ...data };
+    saveApiState(apiState);
+    refreshApiPanel();
+    toast(`Đã tạo tài khoản và lưu vào PostgreSQL: ${data.user.email}`);
+  }
+
+  async function handlePrototypeAuth() {
+    try {
+      if (currentAuthMode() === 'register') {
+        await registerFromPrototype();
+      } else {
+        const { email, password } = authFormData();
+        await loginWith(email, password);
+      }
+    } catch (error) {
+      toast(error.message, 'error');
+    }
+  }
+
+  async function loadEventsFromApi() {
+    const events = await apiFetch('/api/events?status=OPEN');
+    const list = document.querySelectorAll('#home .section')[2];
+    if (list) {
+      list.innerHTML = `
+        <div class="section-title">Sự kiện từ PostgreSQL</div>
+        ${events.map((event) => {
+          const count = event._count?.registrations || 0;
+          const left = Math.max(event.maxSlots - count, 0);
+          return `
+            <div class="event-card" data-event-id="${event.id}">
+              <div class="event-type-badge" style="background:rgba(255,107,157,.1)">
+                <span>${event.eventType === 'ONE_VS_ONE' ? '👫' : event.eventType === 'THREE_VS_THREE' ? '👨‍👩‍👧' : '🎉'}</span>
+                <span style="color:#FF6B9D;font-size:12px;font-weight:700">${event.eventType}</span>
+              </div>
+              <div class="event-title">${event.title}</div>
+              <div class="event-date">📅 ${new Date(event.scheduledAt).toLocaleString('vi-VN')}</div>
+              <div class="event-footer">
+                <div><span class="event-price">${formatMoney(event.price)}</span><span class="free-tag">+ 1 ly FREE</span></div>
+                <span class="spots-text ${left <= 2 ? 'spots-urgent' : ''}">Còn ${left} chỗ</span>
+              </div>
+              <button class="btn-primary" style="margin-top:12px;padding:10px" onclick="registerEventFromApi('${event.id}')">Đăng ký bằng API</button>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+    const eventsBox = document.querySelector('#api-events');
+    if (eventsBox) eventsBox.innerHTML = events.map((e) => `<li>${e.title} · ${formatMoney(e.price)}</li>`).join('');
+    return events;
+  }
+
+  async function registerEventFromApi(eventId) {
+    try {
+      const registration = await apiFetch(`/api/events/${eventId}/register`, { method: 'POST' });
+      toast(`Đã đăng ký event. Registration: ${registration.id}`);
+      await apiFetch(`/api/events/registrations/${registration.id}/check-in`, { method: 'POST' });
+      toast('Đã check-in demo để có thể đặt nước');
+    } catch (error) {
+      toast(error.message, 'error');
+    }
+  }
+
+  async function loadProductsFromApi() {
+    const menu = await apiFetch('/api/orders/menu');
+    const menuBox = document.querySelector('#api-products');
+    if (menuBox) {
+      menuBox.innerHTML = menu.map((item) => `
+        <li>
+          <strong>${item.name}</strong><br>
+          <span>${item.category} · ${formatMoney(item.basePrice)}</span>
+        </li>
+      `).join('');
+    }
+    return menu;
+  }
+
+  async function loadStaffOrders() {
+    const orders = await apiFetch('/api/orders/staff/all');
+    const box = document.querySelector('#api-orders');
+    if (!box) return orders;
+    box.innerHTML = orders.map((order) => `
+      <div class="api-order-card">
+        <div><strong>${order.user?.displayName || 'Khách'}</strong> · ${order.session?.event?.title || 'Event'}</div>
+        <div>${order.items.map((i) => `${i.menuItem.name} x${i.quantity}`).join(', ')}</div>
+        <div>Thanh toán: <strong>${formatMoney(order.finalAmount)}</strong> · ${order.payment ? 'Đã trả' : 'Chưa trả'}</div>
+        <div class="api-row">
+          <button onclick="payOrderFromApi('${order.id}')" ${order.payment ? 'disabled' : ''}>Thanh toán</button>
+          <button onclick="printReceiptFromApi('${order.id}')">In PDF</button>
+        </div>
+      </div>
+    `).join('') || '<p>Chưa có order.</p>';
+    return orders;
+  }
+
+  async function payOrderFromApi(orderId) {
+    try {
+      const receipt = await apiFetch(`/api/orders/${orderId}/pay`, {
+        method: 'POST',
+        body: JSON.stringify({ method: 'CASH' }),
+      });
+      toast(`Đã thanh toán. Receipt: ${receipt.payment.receiptNo}`);
+      await loadStaffOrders();
+      await printReceiptFromApi(orderId);
+    } catch (error) {
+      toast(error.message, 'error');
+    }
+  }
+
+  async function printReceiptFromApi(orderId) {
+    try {
+      const receipt = await apiFetch(`/api/orders/${orderId}/receipt`);
+      const win = window.open('', '_blank', 'width=420,height=640');
+      if (!win) {
+        toast('Popup in PDF đang bị trình duyệt chặn.', 'error');
+        return;
+      }
+      const rows = receipt.items.map((item) => `
+        <tr>
+          <td>${item.menuItem.name}</td>
+          <td style="text-align:center">${item.quantity}</td>
+          <td style="text-align:right">${formatMoney(item.finalPrice)}</td>
+        </tr>
+      `).join('');
+      win.document.write(`
+        <!doctype html>
+        <html><head><meta charset="utf-8"><title>${receipt.payment?.receiptNo || receipt.id}</title>
+        <style>
+          body{font-family:Arial,sans-serif;margin:24px;color:#111}
+          h1{font-size:22px;margin:0 0 4px;color:#FF6B9D}
+          .muted{color:#666;font-size:12px}
+          table{width:100%;border-collapse:collapse;margin-top:18px}
+          th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left}
+          .total{font-size:20px;font-weight:700;text-align:right;margin-top:16px}
+          @media print{button{display:none}}
+        </style></head>
+        <body>
+          <h1>Gōkon Receipt</h1>
+          <div class="muted">Mã hoá đơn: ${receipt.payment?.receiptNo || 'Chưa thanh toán'}</div>
+          <div class="muted">Khách: ${receipt.user.displayName} · ${receipt.user.email}</div>
+          <div class="muted">Event: ${receipt.session.event.title} · ${receipt.session.room.name}</div>
+          <table>
+            <thead><tr><th>Món</th><th>SL</th><th>Tiền</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div class="total">Tổng: ${formatMoney(receipt.finalAmount)}</div>
+          <p class="muted">Phương thức: ${receipt.payment?.method || 'N/A'} · ${new Date(receipt.payment?.createdAt || receipt.createdAt).toLocaleString('vi-VN')}</p>
+          <button onclick="window.print()">In / Lưu PDF</button>
+        </body></html>
+      `);
+      win.document.close();
+      setTimeout(() => win.print(), 300);
+    } catch (error) {
+      toast(error.message, 'error');
+    }
+  }
+
+  function logoutPrototype() {
+    apiState = { ...defaultApiState, apiUrl: apiState.apiUrl };
+    saveApiState(apiState);
+    refreshApiPanel();
+    toast('Đã xoá token local');
+  }
+
+  function installApiPanel() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .api-panel{position:fixed;right:16px;bottom:16px;width:340px;max-height:82vh;overflow:auto;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 18px 48px rgba(0,0,0,.24);z-index:999;padding:14px;font-size:13px}
+      .api-panel-photo{width:100%;height:112px;object-fit:cover;border-radius:12px;margin-bottom:10px;display:block}
+      .api-panel h3{font-size:15px;margin-bottom:8px;color:var(--primary)}
+      .api-panel input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px;margin:4px 0 8px}
+      .api-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+      .api-panel button{border:0;border-radius:999px;padding:8px 10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer}
+      .api-panel button.secondary{background:#f2f2f7;color:#333}
+      .api-panel button:disabled{opacity:.45;cursor:not-allowed}
+      .api-panel ul{padding-left:18px;margin:6px 0 10px}
+      .api-order-card{border:1px solid var(--border);border-radius:12px;padding:10px;margin:8px 0;background:#FFF9FC}
+      .proto-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1c1c1e;color:#fff;padding:12px 16px;border-radius:999px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;z-index:1000;transition:.2s}
+      .proto-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+      .proto-toast[data-type="error"]{background:#c62828}
+      @media(max-width:900px){.api-panel{position:static;width:auto;max-height:none;margin:16px}}
+    `;
+    document.head.appendChild(style);
+
+    const panel = document.createElement('aside');
+    panel.className = 'api-panel';
+    panel.innerHTML = `
+      <img class="api-panel-photo" src="assets/images/gokon-staff-payment.png" alt="Staff thanh toán Gōkon">
+      <h3>Backend / PostgreSQL</h3>
+      <label>API URL</label>
+      <input id="api-url-input" value="${apiState.apiUrl}">
+      <div class="api-row">
+        <button onclick="apiState.apiUrl=document.querySelector('#api-url-input').value;saveApiState(apiState);refreshApiPanel();loadEventsFromApi().catch(e=>toast(e.message,'error'))">Lưu URL</button>
+        <button class="secondary" onclick="logoutPrototype()">Logout</button>
+      </div>
+      <div id="api-user"></div>
+      <div class="api-row">
+        <button onclick="loginWith('user1@gokon.vn','demo1234').catch(e=>toast(e.message,'error'))">User</button>
+        <button onclick="loginWith('staff@gokon.vn','demo1234').catch(e=>toast(e.message,'error'))">Staff</button>
+        <button onclick="loginWith('mc@gokon.vn','demo1234').catch(e=>toast(e.message,'error'))">MC</button>
+      </div>
+      <div class="api-row">
+        <button class="secondary" onclick="loadEventsFromApi().catch(e=>toast(e.message,'error'))">Load events</button>
+        <button class="secondary" onclick="loadProductsFromApi().catch(e=>toast(e.message,'error'))">Load products</button>
+        <button class="secondary" onclick="loadStaffOrders().catch(e=>toast(e.message,'error'))">Staff orders</button>
+      </div>
+      <strong>Events</strong><ul id="api-events"></ul>
+      <strong>Products</strong><ul id="api-products"></ul>
+      <strong>Staff payment</strong><div id="api-orders"></div>
+    `;
+    document.body.appendChild(panel);
+    refreshApiPanel();
+  }
+
+  function refreshApiPanel() {
+    const userBox = document.querySelector('#api-user');
+    if (!userBox) return;
+    userBox.innerHTML = apiState.user
+      ? `<div>Đã login: <strong>${apiState.user.displayName}</strong><br><span>${apiState.user.email} · ${apiState.user.role}</span></div>`
+      : '<div>Chưa login. Dùng form auth hoặc nút demo.</div>';
+  }
+
+  document.getElementById('auth-btn')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handlePrototypeAuth();
+  });
+
+  window.addEventListener('load', () => {
+    installApiPanel();
+    loadEventsFromApi().catch(() => toast('Chưa kết nối được backend. Hãy chạy docker compose up -d.', 'error'));
   });
 </script>
 </body>

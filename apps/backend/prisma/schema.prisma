@@ -221,6 +221,7 @@ model Order {
   updatedAt      DateTime    @updatedAt
 
   items OrderItem[]
+  payment Payment?
 
   @@map("orders")
 }
@@ -238,6 +239,22 @@ model OrderItem {
   finalPrice  Decimal  @db.Decimal(10, 2)
 
   @@map("order_items")
+}
+
+model Payment {
+  id           String   @id @default(uuid())
+  orderId      String   @unique
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  staffId      String?
+  method       String   @default("CASH")
+  amount       Decimal  @db.Decimal(10, 2)
+  cashReceived Decimal? @db.Decimal(10, 2)
+  changeAmount Decimal  @db.Decimal(10, 2) @default(0)
+  status       String   @default("PAID")
+  receiptNo    String   @unique
+  createdAt    DateTime @default(now())
+
+  @@map("payments")
 }
 
 // ─────────────────────────────────────────────

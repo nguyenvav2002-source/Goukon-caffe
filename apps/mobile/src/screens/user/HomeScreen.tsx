@@ -199,19 +199,33 @@ export default function HomeScreen() {
 
       {/* Space floor info */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Không gian Gōkon</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Không gian Gōkon</Text>
+          <TouchableOpacity
+            onPress={() => router.push('/building')}
+            style={styles.buildingBtn}
+          >
+            <Text style={styles.buildingBtnText}>🏢 Xem sảnh</Text>
+          </TouchableOpacity>
+        </View>
         {[
           { floor: 'Lầu 1', desc: '4 phòng riêng – Hẹn hò 1v1', icon: '🏠', color: '#FF6B9D' },
           { floor: 'Lầu 2', desc: '4 phòng nhóm – Hẹn hò 3v3', icon: '🏢', color: '#4A90E2' },
           { floor: 'Lầu 3', desc: 'Sân thượng ngoài trời – 5v5', icon: '🌙', color: '#34C759' },
         ].map((f) => (
-          <View key={f.floor} style={styles.floorRow}>
+          <TouchableOpacity
+            key={f.floor}
+            style={styles.floorRow}
+            onPress={() => router.push('/building')}
+            activeOpacity={0.8}
+          >
             <Text style={styles.floorIcon}>{f.icon}</Text>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={[styles.floorName, { color: f.color }]}>{f.floor}</Text>
               <Text style={styles.floorDesc}>{f.desc}</Text>
             </View>
-          </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -460,5 +474,18 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.sm,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  buildingBtn: {
+    backgroundColor: COLORS.primary + '15',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '40',
+  },
+  buildingBtnText: {
+    fontSize: FONTS.sizes.sm,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
 });

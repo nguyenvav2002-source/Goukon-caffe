@@ -37,6 +37,7 @@ services:
       JWT_ACCESS_EXPIRES_IN: 15m
       JWT_REFRESH_EXPIRES_IN: 7d
       STORAGE_PATH: /app/uploads
+      APP_ROOT_REDIRECT_URL: ${APP_ROOT_REDIRECT_URL:-http://localhost:8081}
     ports:
       - '3000:3000'
     volumes:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,13 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
+  Animated,
+  Image,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SPACING, FONTS, RADIUS, SHADOWS } from '@/constants/theme';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
@@ -41,6 +45,8 @@ export default function MCDashboard() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [uploadingMatchId, setUploadingMatchId] = useState<string | null>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const fetchMatches = async () => {
     if (!sessionId) {
@@ -60,7 +66,51 @@ export default function MCDashboard() {
     }
   };
 
-  useEffect(() => { fetchMatches(); }, []);
+  useEffect(() => {
+    fetchMatches();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  const handleUploadPhoto = async (matchId: string) => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Quyền truy cập', 'Vui lòng cấp quyền truy cập thư viện ảnh');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.85,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const asset = result.assets[0];
+    const formData = new FormData();
+    formData.append('photo', {
+      uri: asset.uri,
+      type: asset.mimeType ?? 'image/jpeg',
+      name: `match-${matchId}.jpg`,
+    } as any);
+
+    setUploadingMatchId(matchId);
+    try {
+      await api.post(`/api/photos/match/${matchId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      Alert.alert('Thành công', '📸 Ảnh kỷ niệm đã được lưu!');
+      fetchMatches();
+    } catch {
+      Alert.alert('Lỗi', 'Không thể tải ảnh lên. Vui lòng thử lại.');
+    } finally {
+      setUploadingMatchId(null);
+    }
+  };
 
   const matchedCount = matches.filter((m) => m.status === 'MATCHED').length;
   const pendingCount = matches.filter((m) => m.status === 'PENDING').length;
@@ -110,6 +160,33 @@ export default function MCDashboard() {
             <Text style={styles.photoText}>Có ảnh kỷ niệm</Text>
           </View>
         )}
+
+        {/* MC photo upload button – only for MATCHED pairs */}
+        {match.status === 'MATCHED' && (
+          <TouchableOpacity
+            style={[
+              styles.uploadPhotoBtn,
+              match.photo ? styles.uploadPhotoBtnUpdating : styles.uploadPhotoBtnNew,
+            ]}
+            onPress={() => handleUploadPhoto(match.id)}
+            disabled={uploadingMatchId === match.id}
+          >
+            {uploadingMatchId === match.id ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons
+                  name={match.photo ? 'camera' : 'camera-outline'}
+                  size={16}
+                  color="#fff"
+                />
+                <Text style={styles.uploadPhotoBtnText}>
+                  {match.photo ? 'Đổi ảnh kỷ niệm' : '📸 Chụp ảnh kỷ niệm'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
@@ -117,7 +194,7 @@ export default function MCDashboard() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
         <View>
           <Text style={styles.headerRole}>MC Dashboard</Text>
           <Text style={styles.headerName}>{user?.displayName}</Text>
@@ -125,10 +202,10 @@ export default function MCDashboard() {
         <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
           <Ionicons name="log-out-outline" size={22} color={COLORS.textSecondary} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* Stats */}
-      <View style={styles.statsRow}>
+      <Animated.View style={[styles.statsRow, { opacity: fadeAnim }]}>
         <View style={[styles.statCard, { borderLeftColor: COLORS.matched }]}>
           <Text style={[styles.statNumber, { color: COLORS.matched }]}>{matchedCount}</Text>
           <Text style={styles.statLabel}>💚 Cặp match</Text>
@@ -141,7 +218,7 @@ export default function MCDashboard() {
           <Text style={styles.statNumber}>{matches.filter((m) => m.status === 'NOT_MATCHED').length}</Text>
           <Text style={styles.statLabel}>😔 Không match</Text>
         </View>
-      </View>
+      </Animated.View>
 
       <Text style={styles.sectionTitle}>Danh sách cặp đôi</Text>
       <Text style={styles.privacyNote}>
@@ -248,6 +325,18 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
   },
   photoText: { fontSize: FONTS.sizes.xs, color: COLORS.primary },
+  uploadPhotoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    marginTop: SPACING.sm,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md,
+  },
+  uploadPhotoBtnNew: { backgroundColor: COLORS.primary },
+  uploadPhotoBtnUpdating: { backgroundColor: COLORS.secondary },
+  uploadPhotoBtnText: { color: '#fff', fontSize: FONTS.sizes.sm, fontWeight: '700' },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   emptyEmoji: { fontSize: 56, marginBottom: SPACING.md },
   emptyText: { fontSize: FONTS.sizes.base, color: COLORS.textSecondary },

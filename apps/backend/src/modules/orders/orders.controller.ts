@@ -11,7 +11,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from '@prisma/client';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
+import { CreateOrderDto, PayOrderDto, UpdateOrderStatusDto } from './dto/order.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -45,6 +45,14 @@ export class OrdersController {
   }
 
   // Staff endpoints
+  @Get('staff/all')
+  @UseGuards(RolesGuard)
+  @Roles(Role.STAFF, Role.MC, Role.ADMIN)
+  @ApiOperation({ summary: 'Get all orders for staff payment dashboard' })
+  getAllStaffOrders() {
+    return this.ordersService.getAllStaffOrders();
+  }
+
   @Get('session/:sessionId')
   @UseGuards(RolesGuard)
   @Roles(Role.STAFF, Role.MC, Role.ADMIN)
@@ -63,5 +71,25 @@ export class OrdersController {
     @CurrentUser('id') staffId: string,
   ) {
     return this.ordersService.updateOrderStatus(orderId, dto, staffId);
+  }
+
+  @Post(':orderId/pay')
+  @UseGuards(RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiOperation({ summary: 'Mark order as paid and create receipt (Staff)' })
+  payOrder(
+    @Param('orderId') orderId: string,
+    @Body() dto: PayOrderDto,
+    @CurrentUser('id') staffId: string,
+  ) {
+    return this.ordersService.payOrder(orderId, dto, staffId);
+  }
+
+  @Get(':orderId/receipt')
+  @UseGuards(RolesGuard)
+  @Roles(Role.STAFF, Role.ADMIN)
+  @ApiOperation({ summary: 'Get printable receipt data for an order (Staff)' })
+  getReceipt(@Param('orderId') orderId: string) {
+    return this.ordersService.getReceipt(orderId);
   }
 }

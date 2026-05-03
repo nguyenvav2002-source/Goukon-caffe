@@ -16,6 +16,9 @@ import { extname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { PhotosService } from './photos.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Role } from '@prisma/client';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -28,7 +31,9 @@ export class PhotosController {
   constructor(private photosService: PhotosService) {}
 
   @Post('match/:matchId')
-  @ApiOperation({ summary: 'Upload match commemoration photo' })
+  @UseGuards(RolesGuard)
+  @Roles(Role.USER, Role.MC, Role.ADMIN)
+  @ApiOperation({ summary: 'Upload match commemoration photo (participants & MC)' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('photo', {
@@ -57,10 +62,11 @@ export class PhotosController {
   async uploadPhoto(
     @Param('matchId') matchId: string,
     @CurrentUser('id') userId: string,
+    @CurrentUser('role') userRole: Role,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new BadRequestException('Photo file is required');
-    return this.photosService.saveMatchPhoto(matchId, userId, file);
+    return this.photosService.saveMatchPhoto(matchId, userId, file, userRole);
   }
 
   @Get('match/:matchId')
