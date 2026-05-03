@@ -102,8 +102,8 @@ project-G-kon/
 ### Backend
 
 ```bash
-cd apps/backend
-cp ../../.env.example .env
+cd backend
+cp ../.env.example .env
 # Chỉnh sửa .env với thông tin database
 npm install
 npx prisma migrate dev
@@ -113,7 +113,7 @@ npm run start:dev
 ### Mobile
 
 ```bash
-cd apps/mobile
+cd frontend
 npm install
 npx expo start
 ```

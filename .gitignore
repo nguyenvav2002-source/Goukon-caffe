@@ -28,7 +28,7 @@ Thumbs.db
 .idea/
 
 # Prisma
-apps/backend/prisma/migrations/**/migration_lock.toml
+backend/prisma/migrations/**/migration_lock.toml
 
 # Test coverage
 coverage/
